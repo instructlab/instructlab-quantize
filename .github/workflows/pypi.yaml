@@ -13,7 +13,6 @@ on:
     release:
         types:
             - published
-    workflow_dispatch:
 
 permissions:
     contents: read
@@ -39,7 +38,6 @@ jobs:
         if: |
             github.repository_owner == 'tiran' && (
                 github.event.action == 'published' ||
-                github.event_name == 'workflow_dispatch' ||
                 (github.event_name == 'push' && github.ref == 'refs/heads/main')
             )
         runs-on: ubuntu-latest
@@ -62,10 +60,7 @@ jobs:
         # environment: publish-pypi
         # TODO: move to instructlab
         if: |
-            github.repository_owner == 'tiran' && (
-                github.event.action == 'published' ||
-                github.event_name == 'workflow_dispatch'
-            )
+            github.repository_owner == 'tiran' && github.event.action == 'published'
         runs-on: ubuntu-latest
         needs: build-package
 
@@ -78,10 +73,21 @@ jobs:
 
             - uses: sigstore/gh-action-sigstore-python@v2.1.1
               with:
-                  upload-signing-artifact: true
+                  upload-signing-artifacts: true
                   inputs: >-
                       ./dist/*.tar.gz
                       ./dist/*.whl
+
+            - name: Upload artifact signatures to GitHub Release
+              env:
+                  GITHUB_TOKEN: ${{ github.token }}
+              run: >-
+                  gh release upload '${{ github.ref_name }}' dist/* --repo '${{ github.repository }}'
+
+            # PyPI does not accept .sigstore artifacts and
+            # gh-action-pypi-publish has no option to ignore them.
+            - name: Remove sigstore signatures before uploading to PyPI
+              run: rm ./dist/*.sigstore
 
             - name: Upload to PyPI
               uses: pypa/gh-action-pypi-publish@release/v1
