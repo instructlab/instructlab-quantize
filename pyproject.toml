@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: Apache-2.0
+
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "instructlab-quantize"
+authors = [
+    { name="Christian Heimes", email="cheimes@redhat.com" },
+]
+description = "Quantize binary for InstructLab"
+readme = "README.md"
+license = {text = "Apache-2.0 AND MIT"}
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "License :: OSI Approved :: Apache Software License",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS :: MacOS X",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+]
+dynamic = ["version"]
+
+[project.urls]
+# TODO: move the project to instructlab
+# homepage = "https://instructlab.io"
+source = "https://github.com/tiran/instructlab-quantize"
+issues = "https://github.com/tiran/instructlab-quantize/issues"
+
+[tool.setuptools_scm]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.check-wheel-contents]
+
+[tool.ruff]
+target-version = "py39"
+# same as black's default line length
+line-length = 88
+extend-exclude = ["llama.cpp"]
+
+[tool.ruff.lint]
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Fixers will be enabled gradually.
+select = [
+    "B",  # flake8-bugbear
+    "E",  # pycodestyle
+    "F",  # Pyflakes
+    "Q",  # flake8-quotes
+    "I",  # isort
+    "UP",  # pyupgrade
+    "SIM",  # flake8-simplify
+]

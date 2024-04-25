@@ -1,0 +1,41 @@
+---
+name: Build quantize binary
+
+permissions:
+    contents: read
+
+on:
+    push:
+        branches:
+            - main
+        tags:
+            - "v*"
+    pull_request:
+        branches:
+            - main
+    workflow_dispatch:
+
+jobs:
+    macos-build:
+        name: "Build quantize on macOS ARM64 (M1)"
+        runs-on: "macos-14"
+        steps:
+            - uses: "actions/checkout@v4"
+              with:
+                  submodules: true
+
+            - name: system info
+              run: sysctl -a
+
+            - name: make build/quantize from llama.cpp sources
+              env:
+                  CMAKE_ARGS: "-DLLAMA_FATAL_WARNINGS=ON -DLLAMA_METAL_EMBED_LIBRARY=ON"
+              run: make build/quantize
+
+            - name: file info
+              run: file build/quantize
+
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: "quantize-macos"
+                  path: build/quantize
