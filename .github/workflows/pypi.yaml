@@ -15,7 +15,8 @@ on:
             - published
 
 permissions:
-    contents: read
+    # allow gh release upload
+    contents: write
     # see https://docs.pypi.org/trusted-publishers/
     id-token: write
 
@@ -73,7 +74,6 @@ jobs:
 
             - uses: sigstore/gh-action-sigstore-python@v2.1.1
               with:
-                  upload-signing-artifacts: true
                   inputs: >-
                       ./dist/*.tar.gz
                       ./dist/*.whl
