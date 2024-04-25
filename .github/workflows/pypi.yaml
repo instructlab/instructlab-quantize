@@ -76,5 +76,12 @@ jobs:
                   name: Packages
                   path: dist
 
+            - uses: sigstore/gh-action-sigstore-python@v2.1.1
+              with:
+                  upload-signing-artifact: true
+                  inputs: >-
+                      ./dist/*.tar.gz
+                      ./dist/*.whl
+
             - name: Upload to PyPI
               uses: pypa/gh-action-pypi-publish@release/v1
