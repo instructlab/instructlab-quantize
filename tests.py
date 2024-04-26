@@ -33,7 +33,7 @@ def test_mock_run_quantize(m_check_output: mock.Mock):
     sys.platform != "darwin" and platform.machine() != "arm64",
     reason="binary is Apple M1-only",
 )
-def test_run_quantize():
+def test_run_quantize(tmp_path: pathlib.Path):
     with pytest.raises(subprocess.CalledProcessError) as exc_info:
         instructlab_quantize.run_quantize("--help", stderr=subprocess.STDOUT, text=True)
 
@@ -43,7 +43,10 @@ def test_run_quantize():
     assert exc.returncode == 1
 
     quant_type = "Q4_K_M"
+    outfile = tmp_path / "ggml-vocab-{quant_type}.gguf"
     instructlab_quantize.run_quantize(
-        "llama.cpp/models/ggml-vocab-llama.gguf", quant_type
+        "llama.cpp/models/ggml-vocab-llama.gguf",
+        os.fspath(outfile),
+        quant_type,
     )
-    assert os.path.isfile(f"llama.cpp/models/ggml-model-{quant_type}.gguf")
+    assert outfile.is_file()
