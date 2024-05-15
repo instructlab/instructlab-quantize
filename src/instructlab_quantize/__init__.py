@@ -2,15 +2,12 @@
 """Run quantize binary on macOS"""
 
 import os
+import platform
 import subprocess
+import sys
 from importlib import resources
 
-__all__ = (
-    "QUANTIZE",
-    "run_quantize",
-)
-
-QUANTIZE = resources.files("instructlab_quantize").joinpath("quantize")
+__all__ = ("run_quantize",)
 
 
 def run_quantize(*quantizeargs, **kwargs):
@@ -18,7 +15,14 @@ def run_quantize(*quantizeargs, **kwargs):
 
     stdout = quantize("extra", "arguments")
     """
-    with resources.as_file(QUANTIZE) as quantize:
+    machine = platform.machine().lower()
+    quantize_bin = f"quantize-{machine}-{sys.platform}"
+
+    files = resources.files("instructlab_quantize")
+
+    with resources.as_file(files.joinpath(quantize_bin)) as quantize:
+        if not quantize.exists():
+            raise FileNotFoundError(quantize)
         args = [os.fspath(quantize)]
         args.extend(quantizeargs)
         return subprocess.check_output(args, **kwargs)
