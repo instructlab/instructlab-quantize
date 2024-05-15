@@ -33,12 +33,19 @@ jobs:
               run: make quantize
 
             - name: file info
-              run: file build/quantize*
+              run: file build/quantize-arm64-darwin
+
+            - name: test quantize
+              run: |
+                  build/quantize-arm64-darwin \
+                      llama.cpp/models/ggml-vocab-llama.gguf \
+                      /tmp/ggml-vocab-Q4_K_M.gguf \
+                      Q4_K_M
 
             - uses: actions/upload-artifact@v4
               with:
-                  name: "quantize-macos-arm64"
-                  path: build/quantize*
+                  name: "quantize-arm64-darwin"
+                  path: build/quantize-arm64-darwin
 
     linux-build:
         name: "Build quantize on Linux for ${{ matrix.arch }}"
@@ -46,13 +53,13 @@ jobs:
         strategy:
             fail-fast: true
             matrix:
-                arch:
-                    - "amd64"
-                    - "arm64"
-                    # - "ppc64le"
-                    # - "s390x"
-                image:
-                    - registry.access.redhat.com/ubi9/python-312
+                include:
+                    - arch: "amd64"
+                      suffix: "x86_64-linux"
+                      image: quay.io/sclorg/python-312-c8s:c8s
+                    - arch: "arm64"
+                      suffix: "aarch64-linux"
+                      image: quay.io/sclorg/python-312-c8s:c8s
         steps:
             - uses: "actions/checkout@v4"
               with:
@@ -70,21 +77,34 @@ jobs:
 
             - name: make build/quantize from llama.cpp sources
               run: |
-                set -e
-                docker run --platform linux/${{ matrix.arch }} ${{ matrix.image }} uname -a
-                docker run --platform linux/${{ matrix.arch }} \
-                      -v .:/opt/app-root/src \
-                      -e CMAKE_ARGS="-DLLAMA_FATAL_WARNINGS=ON" \
-                      ${{ matrix.image }} \
-                      make quantize
+                  set -e
+                  docker run --platform linux/${{ matrix.arch }} ${{ matrix.image }} uname -a
+                  docker run --platform linux/${{ matrix.arch }} \
+                        -v .:/opt/app-root/src \
+                        -e CMAKE_ARGS="-DLLAMA_FATAL_WARNINGS=ON" \
+                        ${{ matrix.image }} \
+                        make quantize
 
             - name: file info
-              run: file build/quantize*
+              run: file build/quantize-${{ matrix.suffix }}
+
+            - name: file symbols
+              run: nm -a build/quantize-${{ matrix.suffix }} | grep -o "GLIBC.*" | sort -u
+
+            - name: test quantize
+              run: |
+                  docker run --platform linux/${{ matrix.arch }} \
+                      -v .:/opt/app-root/src \
+                      ${{ matrix.image }} \
+                      build/quantize-${{ matrix.suffix }} \
+                          llama.cpp/models/ggml-vocab-llama.gguf \
+                          /tmp/ggml-vocab-Q4_K_M.gguf \
+                          Q4_K_M
 
             - uses: actions/upload-artifact@v4
               with:
-                  name: "quantize-linux-${{ matrix.arch }}"
-                  path: build/quantize*
+                  name: "quantize-${{ matrix.suffix }}"
+                  path: build/quantize-${{ matrix.suffix }}
 
     merge-artifacts:
         name: Merge artifacts
