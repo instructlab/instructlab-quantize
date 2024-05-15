@@ -18,6 +18,7 @@ classifiers = [
     "Environment :: Console",
     "License :: OSI Approved :: Apache Software License",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS :: MacOS X",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Programming Language :: Python :: 3",
@@ -40,6 +41,9 @@ issues = "https://github.com/tiran/instructlab-quantize/issues"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
+
+[tool.setuptools.package-data]
+"instructlab_quantize" = ["quantize-*"]
 
 [tool.check-wheel-contents]
 

@@ -20,7 +20,8 @@ def m_check_output():
 
 
 def test_mock_run_quantize(m_check_output: mock.Mock):
-    quantize = os.fspath(PKG_DIR.joinpath("quantize"))
+    machine = platform.machine().lower()
+    quantize = os.fspath(PKG_DIR.joinpath(f"quantize-{machine}-{sys.platform}"))
     instructlab_quantize.run_quantize("egg", "spam")
     m_check_output.assert_called_with([quantize, "egg", "spam"])
     m_check_output.reset_mock()
@@ -29,10 +30,6 @@ def test_mock_run_quantize(m_check_output: mock.Mock):
     m_check_output.assert_called_with([quantize, "--help"], stderr=subprocess.STDOUT)
 
 
-@pytest.mark.skipif(
-    sys.platform != "darwin" and platform.machine() != "arm64",
-    reason="binary is Apple M1-only",
-)
 def test_run_quantize(tmp_path: pathlib.Path):
     with pytest.raises(subprocess.CalledProcessError) as exc_info:
         instructlab_quantize.run_quantize("--help", stderr=subprocess.STDOUT, text=True)

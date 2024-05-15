@@ -30,7 +30,7 @@ jobs:
         steps:
             - uses: "actions/checkout@v4"
               with:
-                submodules: false
+                submodules: true
 
             - uses: "actions/setup-python@v5"
               with:
