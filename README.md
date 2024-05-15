@@ -1,7 +1,12 @@
 # instructlab-quantize
 
 llama.cpp's [`quantize`](https://github.com/ggerganov/llama.cpp/blob/master/examples/quantize/quantize.cpp)
-binary for [InstructLab](https://github.com/instructlab/instructlab) on macOS ARM64.
+binary for [InstructLab](https://github.com/instructlab/instructlab).
+
+- macOS ARM64
+- Linux x86_64 glibc with RHEL 8 ABI (`GLIBCXX_3.4.22`, `GLIBC_2.27`)
+- Linux aarch64 glibc with RHEL 8 ABI (`GLIBCXX_3.4.22`, `GLIBC_2.27`)
+
 
 `quantize` program was written by 'the ggml authors' for `llama.cpp`. License:
 
