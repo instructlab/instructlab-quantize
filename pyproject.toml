@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [build-system]
-requires = ["setuptools>=64", "setuptools_scm>=8"]
+requires = ["setuptools>=64", "setuptools_scm>=8", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -34,10 +34,12 @@ dynamic = ["version"]
 [project.urls]
 # TODO: move the project to instructlab
 # homepage = "https://instructlab.io"
-source = "https://github.com/tiran/instructlab-quantize"
-issues = "https://github.com/tiran/instructlab-quantize/issues"
+source = "https://github.com/instructlab/instructlab-quantize"
+issues = "https://github.com/instructlab/instructlab-quantize/issues"
 
 [tool.setuptools_scm]
+# do not include +gREV local version, required for Test PyPI upload
+local_scheme = "no-local-version"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

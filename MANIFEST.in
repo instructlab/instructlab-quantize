@@ -1,0 +1,23 @@
+include tox.ini tests.py .pylintrc
+recursive-include llama.cpp *
+exclude llama.cpp/.git
+
+global-exclude gguf.inp gguf.out
+exclude llama.cpp/models/ggml-vocab-aquila.gguf
+exclude llama.cpp/models/ggml-vocab-baichuan.gguf
+exclude llama.cpp/models/ggml-vocab-bert-bge.gguf
+exclude llama.cpp/models/ggml-vocab-command-r.gguf
+exclude llama.cpp/models/ggml-vocab-deepseek-coder.gguf
+exclude llama.cpp/models/ggml-vocab-deepseek-llm.gguf
+exclude llama.cpp/models/ggml-vocab-falcon.gguf
+exclude llama.cpp/models/ggml-vocab-gpt2.gguf
+exclude llama.cpp/models/ggml-vocab-gpt-neox.gguf
+# used in tests.py
+# exclude llama.cpp/models/ggml-vocab-llama-bpe.gguf
+exclude llama.cpp/models/ggml-vocab-llama-spm.gguf
+exclude llama.cpp/models/ggml-vocab-mpt.gguf
+exclude llama.cpp/models/ggml-vocab-phi-3.gguf
+exclude llama.cpp/models/ggml-vocab-qwen2.gguf
+exclude llama.cpp/models/ggml-vocab-refact.gguf
+exclude llama.cpp/models/ggml-vocab-stablelm-3b-4e1t.gguf
+exclude llama.cpp/models/ggml-vocab-starcoder.gguf

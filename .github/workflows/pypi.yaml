@@ -14,12 +14,6 @@ on:
         types:
             - published
 
-permissions:
-    # allow gh release upload
-    contents: write
-    # see https://docs.pypi.org/trusted-publishers/
-    id-token: write
-
 jobs:
     build-package:
         name: Build and check packages
@@ -29,27 +23,73 @@ jobs:
               with:
                   # for setuptools-scm
                   fetch-depth: 0
+                  submodules: true
 
             - uses: hynek/build-and-inspect-python-package@v2
+              with:
+                  skip-wheel: 'false'
+
+    build_wheels:
+        name: Build wheels on ${{ matrix.os }}
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                # macos-13 is an intel runner, macos-14 is apple silicon
+                os: [ubuntu-latest, ubuntu-24.04-arm, macos-14]
+
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  # for setuptools-scm
+                  fetch-depth: 0
+                  submodules: true
+
+            - name: Build wheels
+              uses: pypa/cibuildwheel@v2.22.0
+
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+                  path: ./wheelhouse/*.whl
+
+    build_sdist:
+        name: Build source distribution
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  # for setuptools-scm
+                  fetch-depth: 0
+                  submodules: true
+
+            - name: Build sdist
+              run: pipx run build --sdist
+
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: cibw-sdist
+                  path: dist/*.tar.gz
 
     publish-test-pypi:
         name: Publish packages to test.pypi.org
         # environment: publish-test-pypi
-        # TODO: move to instructlab
+        permissions:
+            id-token: write
         if: |
-            github.repository_owner == 'tiran' && (
+            github.repository_owner == 'instructlab' && (
                 github.event.action == 'published' ||
                 (github.event_name == 'push' && github.ref == 'refs/heads/main')
             )
         runs-on: ubuntu-latest
-        needs: build-package
+        needs: [build_wheels, build_sdist]
 
         steps:
             - name: Fetch build artifacts
               uses: actions/download-artifact@v4
               with:
-                  name: Packages
+                  pattern: cibw-*
                   path: dist
+                  merge-multiple: true
 
             - name: Upload to Test PyPI
               uses: pypa/gh-action-pypi-publish@release/v1
@@ -59,20 +99,23 @@ jobs:
     publish-pypi:
         name: Publish release to pypi.org
         # environment: publish-pypi
-        # TODO: move to instructlab
+        permissions:
+            contents: write
+            id-token: write
         if: |
-            github.repository_owner == 'tiran' && github.event.action == 'published'
+            github.repository_owner == 'instructlab' && github.event.action == 'published'
         runs-on: ubuntu-latest
-        needs: build-package
+        needs: [build_wheels, build_sdist]
 
         steps:
             - name: Fetch build artifacts
               uses: actions/download-artifact@v4
               with:
-                  name: Packages
+                  pattern: cibw-*
                   path: dist
+                  merge-multiple: true
 
-            - uses: sigstore/gh-action-sigstore-python@v2.1.1
+            - uses: sigstore/gh-action-sigstore-python@v3.0.0
               with:
                   inputs: >-
                       ./dist/*.tar.gz
