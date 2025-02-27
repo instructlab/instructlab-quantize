@@ -7,8 +7,9 @@ import subprocess
 import sys
 from unittest import mock
 
-import instructlab_quantize
 import pytest
+
+import instructlab_quantize
 
 PKG_DIR = pathlib.Path(instructlab_quantize.__file__).absolute().parent
 
@@ -42,7 +43,7 @@ def test_run_quantize(tmp_path: pathlib.Path):
     quant_type = "Q4_K_M"
     outfile = tmp_path / "ggml-vocab-{quant_type}.gguf"
     instructlab_quantize.run_quantize(
-        "llama.cpp/models/ggml-vocab-llama.gguf",
+        "llama.cpp/models/ggml-vocab-llama-bpe.gguf",
         os.fspath(outfile),
         quant_type,
     )
